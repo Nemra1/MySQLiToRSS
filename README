@@ -42,7 +42,7 @@
 
 3/ Installation
 
-    1/ Copy or move the file rss/index.php.dist to rss/index.php
+    1/ Copy or move the file rss/index.php.dist to rss/index.php.
 
     cp rss/index.php.dist rss/index.php
 
@@ -72,5 +72,5 @@
      <img src="/images/Feed-icon.svg" alt="RSS" title="RSS">
     </a>
 
-    Do not forgot to adjust the href and img variables according
+    Do not forget to adjust the href and img variables according
     to your case.
