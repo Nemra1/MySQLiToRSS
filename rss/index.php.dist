@@ -1,0 +1,259 @@
+<?php
+
+/*
+    MySQLiToRSS, a simple PHP code to generate a RSS 2.0 feed
+    from a MySQL database
+    Copyright (C) 2017  Clément Février
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+    Contact informations:
+    Email
+     contact+dev@clementfevrier.fr
+    Post address
+     4 impasse de l'Abbaye
+     38100 Grenoble
+     FRANCE
+*/
+/*
+   Version 2.0.11 of the RSS 2.0 specification
+   http://www.rssboard.org/rss-specification
+   Some optional items are missing because I do not use them.
+   I might add them later (some or all).
+   I will be pleased to add optional items if requested.
+*/
+
+ /*
+    MySQL
+ */
+ $servername     = "mysql.yourdomain.tld"; // MySQL host, can be localhost
+ $username       = "user";                 // database's user
+ $password       = "passwor";              // password
+ $dbname         = "yourblog";             // database's name
+
+ /*
+    MySQL Query for articles
+    If the values of the strings change, you need to adjust the corresponding variable below after the extract($row); accordingly
+    "id"           -> $id
+    "title"        -> $title
+    "content"      -> $content
+    "url"          -> $url
+    "creationdate" -> $creationdate
+ */
+ $tablename      = "articles";     // name of table
+ $articleId      = "id";           // id of the article, used for the tags and, in my case, to build article's URL
+ $articleTitle   = "title";        // article's title. No HTML allowed. I added couple of substitutions (<i> and &times; so far)
+ $articleContent = "content";      // article's content
+ $articleURL     = "url";          // article's URL
+ $articleDate    = "creationdate"; // article's publication date
+                                   // If $articleDAte in MySQL is not a DATETIME variable, you need to adjust pubDate below
+
+ /*
+    MySQL Query for tags
+    Assuming there are a table tags that contains only tags ($id as primary kay and $tag) and a table link_articles_tags that contains
+    two foreign keys to the primary keys of articles and tags.
+ */
+ $linkTablename  = "link_articles_tags";
+ $fkArticles     = "articles_id";
+ $fkTags         = "tags_id";
+ $tagTablename   = "tags";
+ $tagId          = "id";
+ $tagName        = "tag";
+
+ /*
+    Channel
+ */
+ // Required
+ $channelTitle     = 'My blog';                               // blog's title
+ $link             = 'https://yourdomain.tld/';               // blog's URL
+ $description      = 'My Blog about everything';              // blog's description
+ // Optional
+ $language         = 'en-us';                                 // blog's language. See link below
+                                                              // http://www.rssboard.org/rss-language-codes
+ $copyright        = 'Copyright (C) 2017, My Name';           // copyright
+ $editor           = 'contact@yourdomain.tld (My Name)';      // editor's contact informations
+ $webmaster        = 'contact@yourdomain.tld (My Name)';      // webmaster's contact informations
+ $imageURL         = 'https://yourdomain.tld/images/foo.jpg'; // blog's image
+ $imageTitle       = $channelTitle;                           // image's title
+                                                              // it should be equal according to the standard.
+ $imageLink        = $link;                                   // blog's URL
+                                                              // it should be equal according to the standard.
+ $imageDescription = 'My Pic';                                // image description
+
+ /*
+    Item
+ */
+ $urlBase         = $link . 'articles/';                    // base URL for each article
+ $urlExtension    = '.php';                                 // page extension of each article
+                                                            // you probably have to adjust the variable $articleLink
+                                                            // according to your article's URL
+ $feedURL         = $link + 'feed/';                        // URL of this file, in my case, I put it in /feed/index.php,
+                                                            // such that the URL to the RSS feed s simply
+                                                            // https://mydomain.tld/feed/
+ $feedDescription = $description;                           // feed description.
+                                                            // Probably the same than the blog's description.
+ $author          = 'contact+rss@yourdomain.tld (My Name)'; // author's contact informations. If you are the sole author,
+                                                            // you do not need to fetch this information through MySQL.
+
+
+ // Header
+ header("Content-Type: application/rss+xml; charset=UTF-8");
+
+ // Begin XML document with UTF-8 encoding 
+ // $rssfeed will be built step by step and display at the end.
+ $rssfeed = '<?xml version="1.0" encoding="UTF-8"?>';
+ $rssfeed .= "\n";
+ // Begin <rss>
+ $rssfeed .= ' <rss version="2.0">';
+ $rssfeed .= "\n";
+ // Begin <channel>
+ $rssfeed .= ' <channel>';
+ $rssfeed .= "\n";
+ // Blog's title
+ $rssfeed .= '  <title>' . $channelTitle . '</title>';
+ $rssfeed .= "\n";
+ // blog's URL
+ $rssfeed .= '  <link>' . $link . '</link>';
+ $rssfeed .= "\n";
+ // Blog's description
+ $rssfeed .= '  <description>' . $description . '</description>';
+ $rssfeed .= "\n";
+ // Blog language
+ $rssfeed .= '  <language>' . $language . '</language>';
+ $rssfeed .= "\n";
+ // Copyright
+ $rssfeed .= '  <copyright>' . $copyright . '</copyright>';
+ $rssfeed .= "\n";
+ // Editor's contact informations
+ $rssfeed .= '  <managingEditor>' . $editor . '</managingEditor>';
+ $rssfeed .= "\n";
+ // Webmaster's contact informations
+ $rssfeed .= '  <webMaster>' . $webmaster . '</webMaster>';
+ $rssfeed .= "\n";
+ // Begin <image>
+ $rssfeed .= '  <image>';
+ $rssfeed .= "\n";
+ // Image's URL
+ $rssfeed .= '   <url>' . $imageURL . '</url>';
+ $rssfeed .= "\n";
+ // Image's title
+ $rssfeed .= '   <title>' . $imageTitle . '</title>';
+ $rssfeed .= "\n";
+ // Image's link
+ $rssfeed .= '   <link>' . $imageLink . '</link>';
+ $rssfeed .= "\n";
+ // Image's description
+ $rssfeed .= '   <description>' . $imageDescription . '</description>';
+ $rssfeed .= "\n";
+ // End <image>
+ $rssfeed .= '  </image>';
+ $rssfeed .= "\n";
+ // There is no reason to change this item.
+ $rssfeed .= '  <docs>http://www.rssboard.org/rss-specification</docs>';
+ $rssfeed .= "\n";
+
+ // MySQL connect 
+ $conn = new mysqli($servername, $username, $password, $dbname);
+ if ($conn->connect_error)
+ {
+  die("Connection failed: " . $conn->connect_error);
+ }
+ // Use UTF-8 encoding
+ mysqli_set_charset($conn, "utf8");
+
+ // SQL query
+ // Reverse order by date to make newest artcle appearing first
+ $query = "SELECT " . $articleId . ", " . $articleTitle . ", " . $articleContent . ", " . $articleURL . ", " . $articleDate . " FROM " . $tablename . " ORDER BY " . $articleDate . " DESC";
+ // Store the SQL query in $result
+ $result = $conn->query($query) or die ("Could not execute query");
+
+ // For each article 
+ while($row = $result->fetch_assoc())
+ {
+  // Extract row
+  extract($row);
+  // Begin <item>
+  $rssfeed .= '  <item>';
+  $rssfeed .= "\n";
+
+  // No HTML allowed in <title>. It must exist a better way but I am new in PHP so I do it by hand.
+  // <i> and </i> are replaced by "
+  $title = str_replace('<i>','"', $title);
+  $title = str_replace('</i>','"', $title);
+  // &times; is replaced by x
+  $title = str_replace('&times;','x', $title);
+
+  // Article's title
+  $rssfeed .= '   <title>' . $title . '</title>';
+  $rssfeed .= "\n";
+
+  // Article's content
+  // CDATA allow to display HTML
+  $rssfeed .= '   <description><![CDATA[' . $content . ']]></description>';
+  $rssfeed .= "\n";
+
+  // URL format for each article
+  $articleLink = $urlBase . $id . '_' . $url . $urlExtension;
+
+  // Article's URL
+  $rssfeed .= '   <link>' . $articleLink . '</link>';
+  $rssfeed .= "\n";
+  // Article's URL is used as unique identifer. It is rather standard but it does have to be a link.
+  // You can also substitute $articleLink by $id for example.
+  $rssfeed .= '   <guid isPermaLink="true">' . $articleLink . '</guid>';
+  $rssfeed .= "\n";
+  // Date format must be this one. It converts a DATETIME MySQL variable into the correct format.
+  $rssfeed .= '   <pubDate>' . date("D, d M Y H:i:s O", strtotime($creationdate)) . '</pubDate>';
+  $rssfeed .= "\n";
+  // URL of the feed
+  $rssfeed .= '   <source url="' . $feedURL .'">' . $feedDescription . '</source>';
+  $rssfeed .= "\n";
+  // Author's contact informations
+  $rssfeed .= '   <author>' . $author . '</author>';
+  $rssfeed .= "\n";
+
+  // Tags
+  // MySQL Query to fetch all tag's ids for this article, referenced as $id
+  $query = "SELECT " . $fkTags . " FROM " . $linkTablename . " WHERE " . $fkArticles . "=" . $id;
+  $result_tags_id = $conn->query($query) or die ("Could not execute query");
+  // For each tag id
+  while($tag_id = $result_tags_id->fetch_assoc())
+  {
+   // Extract the actual tag id
+   extract($tag_id);
+   // MySQL Query to fetch the tag corresponding to the tag's id
+   $query = "SELECT " . $tagName . " FROM " . $tagTablename . " WHERE " . $tagId . "=" . $tags_id;
+   $result_tags = $conn->query($query) or die ("Could not execute query");
+   $tags = $result_tags->fetch_assoc();
+   // Extract the tag from the MySQL Query
+   extract($tags);
+   // Add tag
+   $rssfeed .= '<category>' . $tag . '</category>';
+   $rssfeed .= "\n";
+  }
+
+  // End <item>
+  $rssfeed .= '  </item>';
+  $rssfeed .= "\n";
+ }
+
+ // End <channel>
+ $rssfeed .= ' </channel>';
+ $rssfeed .= "\n";
+ // End <rss>
+ $rssfeed .= '</rss>';
+
+ // Print the string
+ echo $rssfeed;
+?>

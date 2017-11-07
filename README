@@ -1,0 +1,76 @@
+    MySQLiToRSS, a simple PHP code to generate a RSS 2.0 feed from a MySQL
+    database
+    Copyright (C) 2017  Clément Février
+
+1/ License
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+    Contact informations:
+    Email
+     contact+dev@clementfevrier.fr
+    Post address
+     4 impasse de l'Abbaye
+     38100 Grenoble
+     FRANCE
+
+2/ About
+
+    MySQLiToRSS is a PHP file that generate a RSS 2.0 feed based
+    on content stored in a MySQL database.
+    It handles sorting by date, the use of HTML in the
+    description of an item, which allow to render the article as
+    it appears in the feed reader, excepted for the CSS sheets,
+    and multitag articles.
+    It is based on Version 2.0.11 of the RSS 2.0 specification,
+    the most up to date at the time of writing this software.
+    http://www.rssboard.org/rss-specification
+    Some optional items are missing because I do not use them.
+    I might add them later (some or all).
+    I will be pleased to add optional items if requested.
+
+3/ Installation
+
+    1/ Copy or move the file rss/index.php.dist to rss/index.php
+
+    cp rss/index.php.dist rss/index.php
+
+    2/ Edit the file rss/index.php and adjust the variables
+    according to your blog's informations and database structure.
+    This is the only required step.
+
+    % vi rss/index.php
+
+    3/ Copy, move or link the folder to the root of your website
+    for a better looking feed URL, for example to have
+    yourdomain.tld/rss/
+
+    % cd /var/www/html
+    % ln -s MySQLiToRSS/rss .
+
+    4/ Advertise your RSS feed in the webpages of your website to
+    let web browsers know about its existence.
+    In the header of your webpages, add the following line
+
+    <link rel="alternate" type="application/rss+xml" href="/rss/" title="RSS">
+
+    And you can also add a visible link inside your webpages by
+    adding the line
+
+    <a type="application/rss+xml" href="/rss/">
+     <img src="/images/Feed-icon.svg" alt="RSS" title="RSS">
+    </a>
+
+    Do not forgot to adjust the href and img variables according
+    to your case.
