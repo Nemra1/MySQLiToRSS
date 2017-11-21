@@ -105,6 +105,8 @@
                                                             // Probably the same than the blog's description.
  $author          = 'contact+rss@yourdomain.tld (My Name)'; // author's contact informations. If you are the sole author,
                                                             // you do not need to fetch this information through MySQL.
+ $commentLink     = '#comments';                            // Pattern for commentary section.
+                                                            // In this case $articleLink . '#comments'
 
 
  // Header
@@ -223,6 +225,9 @@
   $rssfeed .= "\n";
   // Author's contact informations
   $rssfeed .= '   <author>' . $author . '</author>';
+  $rssfeed .= "\n";
+  // URL to the commentary section of the article
+  $rssfeed .= '   <comments>' . $articleLink . $commentLink . '</comments>';
   $rssfeed .= "\n";
 
   // Tags
