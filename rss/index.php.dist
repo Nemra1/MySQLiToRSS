@@ -260,6 +260,7 @@
  $rssfeed .= "\n";
  // End <rss>
  $rssfeed .= '</rss>';
+ $rssfeed .= "\n";
 
  // Print the string
  echo $rssfeed;
