@@ -182,11 +182,27 @@
  // Store the SQL query in $result
  $result = $conn->query($query) or die ("Could not execute query");
 
+ // Boolean used to create pubDate and lastBuildDate
+ // for the channel
+ // Because it is not clear the different between the 2,
+ // I set them equal.
+ $pubDate = false;
  // For each article 
  while($row = $result->fetch_assoc())
  {
   // Extract row
   extract($row);
+  // If pubDate is not set for the channel
+  if(!$pubDate)
+  {
+   // Add pubDate and lastBuildDate to match the date of last published article
+   $rssfeed .= '  <pubDate>' . date("D, d M Y H:i:s O", strtotime($creationdate)) . '</pubDate>';
+   $rssfeed .= "\n";
+   $rssfeed .= '  <lastBuildDate>' . date("D, d M Y H:i:s O", strtotime($creationdate)) . '</lastBuildDate>';
+   $rssfeed .= "\n";
+   // Do not add pubDate and lastBuildDate for the channel anymore
+   $pubDate = true;
+  }
   // Begin <item>
   $rssfeed .= '  <item>';
   $rssfeed .= "\n";
