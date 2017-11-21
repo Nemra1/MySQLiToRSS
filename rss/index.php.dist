@@ -241,7 +241,7 @@
    // Extract the tag from the MySQL Query
    extract($tags);
    // Add tag
-   $rssfeed .= '<category>' . $tag . '</category>';
+   $rssfeed .= '   <category>' . $tag . '</category>';
    $rssfeed .= "\n";
   }
 
