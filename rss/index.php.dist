@@ -261,8 +261,8 @@
    $tags = $result_tags->fetch_assoc();
    // Extract the tag from the MySQL Query
    extract($tags);
-   // Add tag
-   $rssfeed .= '   <category>' . $tag . '</category>';
+   // Add tag, you should set the proper pattern for the URL to the category
+   $rssfeed .= '   <category domain="' . $urlBase . '?tag='. $tag . '">' . $tag . '</category>';
    $rssfeed .= "\n";
   }
 
